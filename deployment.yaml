@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: face
+spec:
+  selector:
+    matchLabels:
+      app: face
+  replicas: 1 # tells deployment to run 1 pods matching the template
+  template:
+    metadata:
+      labels:
+        app: face
+    spec:
+      containers:
+      - name: forwarder
+        image: nlebovitz/forwarder
+        ports:
+        - containerPort: 1883
+      - name: broker
+        image: nlebovitz/broker
+        ports:
+        - containerPort: 1883
+      - name: detector
+        image: nlebovitz/detector
+        ports:
+        - containerPort: 1883
+      - name: logger
+        image: nlebovitz/logger
+        ports:
+        - containerPort: 1883
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mosquitto-service
+  labels:
+    run: mosquitto
+spec:
+  type: NodePort
+  ports:
+  - port: 1883
+    protocol: TCP
+    targetPort: 1883
+  selector:
+    app: mosquitto
