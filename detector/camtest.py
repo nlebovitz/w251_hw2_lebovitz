@@ -3,25 +3,15 @@
 import numpy as np
 import cv2
 import time
-import paho.mqtt.client as mqtt
-
-LOCAL_MQTT_HOST="localhost"
-LOCAL_MQTT_PORT=1883
-LOCAL_MQTT_TOPIC="test_topic"
-
-def on_connect_local(client, userdata, flags, rc):
-        print("connected to local broker with rc: " + str(rc))
-
-local_mqttclient = mqtt.Client()
-local_mqttclient.on_connect = on_connect_local
-local_mqttclient.connect(LOCAL_MQTT_HOST, LOCAL_MQTT_PORT, 60)
 
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 # the index depends on your camera setup and which one is your USB camera.
 # you may need to change to 1 or 2 depending on your machine.
 cap = cv2.VideoCapture(0) # with macOS and an iphone, this might be your iphone camera
 f = open("faces.txt", "a")
-end = time.time() + 20
+
+count = 0
+end = time.time() + 10
 while(time.time() < end):
     # Capture frame-by-frame
     ret, frame = cap.read()
@@ -33,11 +23,14 @@ while(time.time() < end):
         face = gray[y:y+h, x:x+h]
         rc, png = cv2.imencode('.png', face)
         msg = png.tobytes()
+        f.write(str(msg))
+        cv2.imwrite("frame%d.jpg" % count, face)
+        count += 1
         print("publishing: ", msg)
-        local_mqttclient.publish(LOCAL_MQTT_TOPIC,msg)
+        #local_mqttclient.publish(LOCAL_MQTT_TOPIC,msg)
         cropped.append(png)
     
-    f.write(cropped)
+    
     # Display the resulting frame
     # cv2.imshow('frame',gray)
 
