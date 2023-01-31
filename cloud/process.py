@@ -4,7 +4,8 @@ import numpy as np
 import cv2
 
 s3 = boto3.client('s3')
-bucket = 'nlebovitz-hw2'
+bucket_name = 'nlebovitz-hw2'
+bucket = s3.get_bucket(bucket_name)
 LOCAL_MQTT_HOST="localhost"
 LOCAL_MQTT_PORT=30250
 LOCAL_MQTT_TOPIC="test_topic"
@@ -19,9 +20,7 @@ def on_message(client,userdata, msg):
     buff = np.fromstring(msg.payload, np.uint8)
     buff = buff.reshape(1, -1)
     img = cv2.imdecode(buff, cv2.IMREAD_COLOR)
-
-    file_name = 'img'
-    s3.upload_file(file_name, bucket)
+    s3.upload_file(img, bucket)
 
   except:
     print("Unexpected error:", sys.exc_info()[0])
