@@ -1,0 +1,4 @@
+Cloud architector
+2 Containers
+  1) broker MQTT client
+  2) image processor that uploads to S3
